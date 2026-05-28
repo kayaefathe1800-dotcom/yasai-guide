@@ -8,7 +8,7 @@ import { loadVegetables, saveVegetables } from '@/lib/storage'
 // NEXT_PUBLIC_ makes this visible in the client bundle — intentional for a
 // localStorage-only app with no server. This is a UI-layer deterrent only.
 const ADMIN_PASSWORD =
-  process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? 'yasai123'
+  process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? '1234'
 
 export default function AdminPage() {
   const router = useRouter()
@@ -80,6 +80,17 @@ export default function AdminPage() {
               キャンセル
             </button>
           </form>
+          <div className="mt-5 p-3 bg-[#faf8f5] rounded-xl border border-[#ede8e0]">
+            <p className="text-[10px] text-[#9b8e7c] font-bold tracking-wider uppercase mb-1.5">
+              メモ
+            </p>
+            <p className="text-xs text-[#5c4f3a] leading-relaxed">
+              パスワード：1234
+            </p>
+            <p className="text-xs text-[#9b8e7c] leading-relaxed mt-1">
+              各野菜の画像URLと見分け方を編集できます。
+            </p>
+          </div>
         </div>
       </div>
     )
