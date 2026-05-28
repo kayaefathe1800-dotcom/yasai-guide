@@ -5,6 +5,12 @@ import { useRouter } from 'next/navigation'
 import { Vegetable } from '@/lib/vegetables'
 import { loadVegetables, saveVegetables } from '@/lib/storage'
 
+function toDirectImageUrl(url: string): string {
+  const m = url.match(/drive\.google\.com\/file\/d\/([^/?]+)/)
+  if (m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w800`
+  return url
+}
+
 // NEXT_PUBLIC_ makes this visible in the client bundle — intentional for a
 // localStorage-only app with no server. This is a UI-layer deterrent only.
 const ADMIN_PASSWORD =
@@ -29,7 +35,8 @@ export default function AdminPage() {
     }
   }
 
-  const updateImageUrl = (id: string, imageUrl: string) => {
+  const updateImageUrl = (id: string, raw: string) => {
+    const imageUrl = toDirectImageUrl(raw)
     setVegetables((prev) => {
       const next = prev.map((v) => (v.id === id ? { ...v, imageUrl } : v))
       saveVegetables(next)
@@ -127,7 +134,7 @@ export default function AdminPage() {
                 type="text"
                 value={v.imageUrl ?? ''}
                 onChange={(e) => updateImageUrl(v.id, e.target.value)}
-                placeholder="https://drive.google.com/uc?export=view&id=..."
+                placeholder="Google Driveの共有リンクをそのまま貼り付け可"
                 className="w-full px-3 py-2 bg-[#faf8f5] border border-[#ede8e0] rounded-lg text-xs text-[#5c4f3a] placeholder:text-[#9b8e7c] focus:outline-none focus:border-primary"
               />
               {v.imageUrl && (
