@@ -72,6 +72,34 @@ export default function VeggieDetailPage() {
           見分け方チェック
         </p>
         <CheckList points={veggie.points} />
+
+        <div className="mt-6">
+          <p className="text-[10px] text-[#9b8e7c] font-bold tracking-wider uppercase mb-3">
+            保存方法・日持ち
+          </p>
+          <div className="bg-white rounded-xl border border-[#ede8e0] p-4 space-y-4">
+            <div className="flex items-start gap-3">
+              <span className="text-lg leading-none mt-0.5">🧊</span>
+              <div>
+                <p className="text-[10px] text-[#9b8e7c] font-bold tracking-wider uppercase mb-1">
+                  保存方法
+                </p>
+                <p className="text-sm text-[#5c4f3a] leading-relaxed">
+                  {veggie.storage}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-lg leading-none mt-0.5">📅</span>
+              <div>
+                <p className="text-[10px] text-[#9b8e7c] font-bold tracking-wider uppercase mb-1">
+                  日持ち
+                </p>
+                <p className="text-sm text-[#5c4f3a]">{veggie.shelfDays}</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

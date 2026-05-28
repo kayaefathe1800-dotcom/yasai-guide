@@ -9,6 +9,8 @@ export interface Vegetable {
   seasonText: string
   imageUrl: string
   points: string[]
+  storage: string
+  shelfDays: string
 }
 
 export const defaultVegetables: Vegetable[] = [
@@ -25,6 +27,8 @@ export const defaultVegetables: Vegetable[] = [
       '外側の葉に傷や黒い斑点がない',
       '芯が湿っている',
     ],
+    storage: '芯をくり抜き、濡らしたキッチンペーパーを詰めてポリ袋で冷蔵',
+    shelfDays: '冷蔵で約2〜3週間',
   },
   {
     id: 'retasu',
@@ -39,6 +43,8 @@ export const defaultVegetables: Vegetable[] = [
       '黒い斑点がない',
       '軽く握って弾力があるもの',
     ],
+    storage: '芯に爪楊枝を3本刺して成長を止め、ポリ袋に入れ冷蔵',
+    shelfDays: '冷蔵で約1週間',
   },
   {
     id: 'tamanegi',
@@ -53,6 +59,8 @@ export const defaultVegetables: Vegetable[] = [
       '球が丸くて硬い',
       '傷や腐れがない',
     ],
+    storage: '風通しのよい冷暗所でネットに入れるかつるして保存（カット後は冷蔵）',
+    shelfDays: '常温で約1〜2ヶ月',
   },
   {
     id: 'jagaimo',
@@ -67,6 +75,8 @@ export const defaultVegetables: Vegetable[] = [
       '硬くてずっしり重い',
       '形がきれいで均一なもの',
     ],
+    storage: '新聞紙に包んで風通しのよい冷暗所へ。冷蔵すると甘みが増すが食感が変わる',
+    shelfDays: '常温で約1〜2ヶ月',
   },
   {
     id: 'asupara',
@@ -81,6 +91,8 @@ export const defaultVegetables: Vegetable[] = [
       '鱗片が締まっていてバラバラでない',
       '全体にハリがある',
     ],
+    storage: '濡らした新聞紙で根元を包みポリ袋に入れ、立てて冷蔵',
+    shelfDays: '冷蔵で約3〜4日',
   },
   {
     id: 'soramame',
@@ -95,6 +107,8 @@ export const defaultVegetables: Vegetable[] = [
       '豆の黒い筋が薄い（新鮮な証）',
       '豆がぷっくり膨らんでいる',
     ],
+    storage: 'さやごとポリ袋に入れ冷蔵。鮮度が落ちやすいので早めに食べる',
+    shelfDays: '冷蔵で約2〜3日',
   },
   {
     id: 'snapendo',
@@ -109,6 +123,8 @@ export const defaultVegetables: Vegetable[] = [
       '豆が中でぎっしり詰まっている感触',
       '切り口が新鮮でみずみずしい',
     ],
+    storage: 'ポリ袋に入れて冷蔵',
+    shelfDays: '冷蔵で約3〜5日',
   },
   {
     id: 'tomato',
@@ -123,6 +139,8 @@ export const defaultVegetables: Vegetable[] = [
       'つるが青々としている',
       '底部分がやや凹んでいる（完熟の証）',
     ],
+    storage: '未熟なものは常温で追熟。完熟したらヘタを下にして冷蔵',
+    shelfDays: '常温で約3〜5日、完熟後は冷蔵で約1週間',
   },
   {
     id: 'kyuuri',
@@ -137,6 +155,8 @@ export const defaultVegetables: Vegetable[] = [
       '真っすぐで、曲がっていない',
       '握ったときポキッと折れる弾力',
     ],
+    storage: '1本ずつキッチンペーパーで包みポリ袋に入れ、立てて野菜室へ',
+    shelfDays: '冷蔵で約1週間',
   },
   {
     id: 'nasu',
@@ -151,6 +171,8 @@ export const defaultVegetables: Vegetable[] = [
       'ヘタの部分が新鮮な緑色',
       '皮が傷んでいない',
     ],
+    storage: 'ラップで包んで野菜室へ。低温に弱いので冷やしすぎに注意',
+    shelfDays: '冷蔵で約1週間',
   },
   {
     id: 'piiman',
@@ -165,6 +187,8 @@ export const defaultVegetables: Vegetable[] = [
       'ヘタがみずみずしい緑色',
       '肉厚で硬いもの',
     ],
+    storage: 'キッチンペーパーで包んでポリ袋に入れ冷蔵',
+    shelfDays: '冷蔵で約2週間',
   },
   {
     id: 'papurika',
@@ -179,6 +203,8 @@ export const defaultVegetables: Vegetable[] = [
       '4つの角がしっかり出ている',
       '肉厚で硬いもの',
     ],
+    storage: 'ポリ袋に入れて野菜室で保存',
+    shelfDays: '冷蔵で約2週間',
   },
   {
     id: 'tomorokoshi',
@@ -193,6 +219,8 @@ export const defaultVegetables: Vegetable[] = [
       '粒が先まで均等に詰まっている',
       '持ったときずっしり重い',
     ],
+    storage: '皮つきのまま立てて冷蔵。甘みが落ちやすいので早めに食べる',
+    shelfDays: '冷蔵で約3日',
   },
   {
     id: 'okura',
@@ -207,6 +235,8 @@ export const defaultVegetables: Vegetable[] = [
       '産毛がしっかり立っている',
       '切り口が乾いていない',
     ],
+    storage: '1本ずつキッチンペーパーで包みポリ袋に入れ冷蔵',
+    shelfDays: '冷蔵で約3〜4日',
   },
   {
     id: 'goya',
@@ -221,6 +251,8 @@ export const defaultVegetables: Vegetable[] = [
       'ずっしり重くてハリがある',
       '切り口が乾いていない',
     ],
+    storage: '種とワタを取り除いてラップで包んで冷蔵',
+    shelfDays: '冷蔵で約1週間',
   },
   {
     id: 'kabocha',
@@ -235,6 +267,8 @@ export const defaultVegetables: Vegetable[] = [
       'ずっしり重い',
       'カット品は果肉が鮮やかなオレンジ色',
     ],
+    storage: '丸ごとは風通しのよい常温保存。カット後は種とワタを取りラップして冷蔵',
+    shelfDays: '丸ごとは常温で約1〜2ヶ月、カット後は冷蔵で約1週間',
   },
   {
     id: 'edamame',
@@ -249,6 +283,8 @@ export const defaultVegetables: Vegetable[] = [
       '産毛がしっかり残っている',
       '豆がぷっくり膨らんでいる',
     ],
+    storage: 'さやごとポリ袋に入れ冷蔵。鮮度が落ちやすいので早めに食べる',
+    shelfDays: '冷蔵で約2〜3日',
   },
   {
     id: 'burokkorii',
@@ -263,6 +299,8 @@ export const defaultVegetables: Vegetable[] = [
       '茎がみずみずしく、断面が白い',
       '握ったときポキッと折れる弾力',
     ],
+    storage: '茎を下にしてポリ袋に入れ立てて冷蔵。茎に切り込みを入れると長持ち',
+    shelfDays: '冷蔵で約4〜5日',
   },
   {
     id: 'ninjin',
@@ -277,6 +315,8 @@ export const defaultVegetables: Vegetable[] = [
       '細いひび割れがない',
       '曲がっていないまっすぐなもの',
     ],
+    storage: '水気を拭き取りキッチンペーパーで包んでポリ袋に入れ立てて冷蔵',
+    shelfDays: '冷蔵で約2〜3週間',
   },
   {
     id: 'daikon',
@@ -291,6 +331,8 @@ export const defaultVegetables: Vegetable[] = [
       '根の部分が白く、毛根が細い',
       '肩の部分がしっかり張っている',
     ],
+    storage: '葉は根元から切り落とし、新聞紙で包んで冷蔵庫の野菜室へ',
+    shelfDays: '冷蔵で約2週間',
   },
   {
     id: 'satsumaimo',
@@ -305,6 +347,8 @@ export const defaultVegetables: Vegetable[] = [
       '表面が乾燥していてツヤがある',
       '切り口（両端）が変色していない',
     ],
+    storage: '新聞紙に包んで風通しのよい冷暗所へ。低温に弱いため冷蔵はNG',
+    shelfDays: '常温で約1〜2ヶ月',
   },
   {
     id: 'satoimo',
@@ -319,6 +363,8 @@ export const defaultVegetables: Vegetable[] = [
       '皮に傷や黒い斑点がない',
       '重くてずっしりしたもの',
     ],
+    storage: '土付きのまま新聞紙で包んで冷暗所。乾燥を防ぐことが大切',
+    shelfDays: '常温で約1ヶ月',
   },
   {
     id: 'gobou',
@@ -333,6 +379,8 @@ export const defaultVegetables: Vegetable[] = [
       '曲がっていないまっすぐなもの',
       '切り口が瑞々しい',
     ],
+    storage: '土付きは新聞紙で包んで常温。洗ったものはラップして冷蔵',
+    shelfDays: '常温で約2週間、冷蔵で約1ヶ月',
   },
   {
     id: 'naganegi',
@@ -347,6 +395,8 @@ export const defaultVegetables: Vegetable[] = [
       '根元が乾いていない',
       '太くてずっしりしたもの',
     ],
+    storage: '新聞紙で包んで立てて冷蔵。葉の青い部分をつけたまま保存が鮮度の秘訣',
+    shelfDays: '冷蔵で約2週間',
   },
   {
     id: 'hakusai',
@@ -361,6 +411,8 @@ export const defaultVegetables: Vegetable[] = [
       'カット品は断面の葉が詰まっている',
       '外葉に傷や変色がない',
     ],
+    storage: '丸ごとは新聞紙で包んで冷暗所。カット後はラップして冷蔵',
+    shelfDays: '丸ごとは約1〜2ヶ月、カット後は冷蔵で約1週間',
   },
   {
     id: 'komatsuna',
@@ -375,6 +427,8 @@ export const defaultVegetables: Vegetable[] = [
       'しなびていない',
       '切り口が瑞々しい',
     ],
+    storage: '濡らしたキッチンペーパーで包みポリ袋に入れ立てて冷蔵',
+    shelfDays: '冷蔵で約1週間',
   },
   {
     id: 'horenso',
@@ -389,6 +443,8 @@ export const defaultVegetables: Vegetable[] = [
       'しなびていない',
       '茎が太くて短いもの',
     ],
+    storage: '濡らしたキッチンペーパーで包みポリ袋に入れ立てて冷蔵',
+    shelfDays: '冷蔵で約4〜5日',
   },
 ]
 

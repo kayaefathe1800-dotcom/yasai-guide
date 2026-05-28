@@ -44,6 +44,14 @@ export default function AdminPage() {
     })
   }
 
+  const updateField = (id: string, field: 'storage' | 'shelfDays', value: string) => {
+    setVegetables((prev) => {
+      const next = prev.map((v) => (v.id === id ? { ...v, [field]: value } : v))
+      saveVegetables(next)
+      return next
+    })
+  }
+
   const updatePoint = (id: string, idx: number, text: string) => {
     setVegetables((prev) => {
       const next = prev.map((v) => {
@@ -149,7 +157,7 @@ export default function AdminPage() {
               )}
             </div>
 
-            <div>
+            <div className="mb-3">
               <label className="text-[10px] text-[#9b8e7c] font-bold tracking-wider uppercase block mb-1.5">
                 見分け方
               </label>
@@ -164,6 +172,30 @@ export default function AdminPage() {
                   />
                 ))}
               </div>
+            </div>
+
+            <div className="mb-3">
+              <label className="text-[10px] text-[#9b8e7c] font-bold tracking-wider uppercase block mb-1.5">
+                保存方法
+              </label>
+              <input
+                type="text"
+                value={v.storage ?? ''}
+                onChange={(e) => updateField(v.id, 'storage', e.target.value)}
+                className="w-full px-3 py-2 bg-[#faf8f5] border border-[#ede8e0] rounded-lg text-xs text-[#5c4f3a] focus:outline-none focus:border-primary"
+              />
+            </div>
+
+            <div>
+              <label className="text-[10px] text-[#9b8e7c] font-bold tracking-wider uppercase block mb-1.5">
+                日持ち
+              </label>
+              <input
+                type="text"
+                value={v.shelfDays ?? ''}
+                onChange={(e) => updateField(v.id, 'shelfDays', e.target.value)}
+                className="w-full px-3 py-2 bg-[#faf8f5] border border-[#ede8e0] rounded-lg text-xs text-[#5c4f3a] focus:outline-none focus:border-primary"
+              />
             </div>
           </div>
         ))}

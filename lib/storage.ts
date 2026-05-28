@@ -7,7 +7,13 @@ export function loadVegetables(): Vegetable[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return defaultVegetables
-    return JSON.parse(raw) as Vegetable[]
+    const saved = JSON.parse(raw) as Partial<Vegetable>[]
+    // デフォルトを基盤に保存済みデータを上書きマージ。
+    // こうすることで新しいフィールドが追加されても既存ユーザーに自動反映される。
+    return defaultVegetables.map((def) => {
+      const override = saved.find((s) => s.id === def.id)
+      return override ? { ...def, ...override } : def
+    })
   } catch {
     return defaultVegetables
   }
