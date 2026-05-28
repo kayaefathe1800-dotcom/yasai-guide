@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import UnitCompareCalculator from './UnitCompareCalculator'
 import CartTotalCalculator from './CartTotalCalculator'
 
@@ -36,10 +37,17 @@ export default function ShoppingCalculator() {
   return (
     <div className="max-w-lg mx-auto min-h-screen">
       {/* Header */}
-      <header className="bg-white border-b border-[#ede8e0] px-4 py-3 sticky top-0 z-10">
-        <h1 className="text-base font-bold text-[#3d3228] text-center">
-          買い物お得即決計算機
+      <header className="bg-white border-b border-[#ede8e0] px-4 py-3 sticky top-0 z-10 flex items-center justify-between">
+        <Link
+          href="/"
+          className="text-xs text-[#9b8e7c] border border-[#ede8e0] rounded-lg px-2.5 py-1 hover:border-primary transition-colors"
+        >
+          🥬 野菜ガイド
+        </Link>
+        <h1 className="text-sm font-bold text-[#3d3228]">
+          買い物計算機
         </h1>
+        <div className="w-16" />
       </header>
 
       {/* Tab switcher */}
