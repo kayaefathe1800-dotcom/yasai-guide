@@ -392,13 +392,20 @@ export const defaultVegetables: Vegetable[] = [
   },
 ]
 
+function toKatakana(str: string): string {
+  return str.replace(/[ぁ-ゖ]/g, (ch) =>
+    String.fromCharCode(ch.charCodeAt(0) + 0x60)
+  )
+}
+
 export function filterVegetables(
   vegetables: Vegetable[],
   query: string,
   seasons: Season[]
 ): Vegetable[] {
   return vegetables.filter((v) => {
-    const matchesQuery = query === '' || v.name.includes(query)
+    const matchesQuery =
+      query === '' || toKatakana(v.name).includes(toKatakana(query))
     const matchesSeason =
       seasons.length === 0 || v.seasons.some((s) => seasons.includes(s))
     return matchesQuery && matchesSeason

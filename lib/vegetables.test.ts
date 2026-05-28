@@ -35,6 +35,12 @@ describe('filterVegetables', () => {
     })
   })
 
+  it('ひらがなでカタカナ野菜を検索できる', () => {
+    const result = filterVegetables(defaultVegetables, 'とまと', [])
+    expect(result).toHaveLength(1)
+    expect(result[0].name).toBe('トマト')
+  })
+
   it('マッチなしで空配列を返す', () => {
     const result = filterVegetables(defaultVegetables, 'zzz存在しない野菜', [])
     expect(result).toHaveLength(0)
