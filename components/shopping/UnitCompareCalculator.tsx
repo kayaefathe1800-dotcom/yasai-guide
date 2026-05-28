@@ -1,15 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import type { DiscountType } from '@/types/shopping'
-import { calcDiscountedTotal } from '@/lib/shopping-calculator'
+import type { DiscountType, TaxMode, TaxRate } from '@/types/shopping'
+import { calcTaxIncluded } from '@/lib/shopping-calculator'
 
-const LS_KEY = 'shoppingCalcUnit'
-type CompareBase = 'per_piece' | 'per_100g'
-
+// ── 型 ──────────────────────────────────────────────────────────
 interface Item {
   price: number | ''
-  quantity: number | ''
+  capacity: number | ''  // 容量（個数 or グラム数）
+  taxMode: TaxMode
+  taxRate: TaxRate
   discountType: DiscountType
   discountValue: number | ''
   bundleQuantity: number | ''
@@ -19,7 +19,9 @@ interface Item {
 function defaultItem(): Item {
   return {
     price: '',
-    quantity: '',
+    capacity: '',
+    taxMode: 'included',
+    taxRate: 10,
     discountType: 'none',
     discountValue: '',
     bundleQuantity: '',
@@ -27,29 +29,49 @@ function defaultItem(): Item {
   }
 }
 
-function calcUnitPrice(item: Item, base: CompareBase): number | null {
+// ── 計算：1つあたりの価格 ────────────────────────────────────────
+// price = パッケージ1個の価格
+// capacity = 内容量（個数 or グラム）
+// → 1つあたり = 実質パッケージ価格（税込）÷ 容量
+function getUnitPrice(item: Item): number | null {
   const price = item.price === '' ? 0 : Number(item.price)
-  const quantity = item.quantity === '' ? 0 : Number(item.quantity)
-  if (price <= 0 || quantity <= 0) return null
+  const capacity = item.capacity === '' ? 0 : Number(item.capacity)
+  if (price <= 0 || capacity <= 0) return null
 
   const discountValue = item.discountValue === '' ? 0 : Number(item.discountValue)
-  const bundleQty = item.bundleQuantity === '' ? 1 : Number(item.bundleQuantity)
+  const bundleQty = item.bundleQuantity === '' ? 0 : Number(item.bundleQuantity)
   const bundlePrice = item.bundlePrice === '' ? 0 : Number(item.bundlePrice)
 
-  const effectiveTotal = calcDiscountedTotal(
-    price,
-    quantity,
-    item.discountType,
-    discountValue,
-    bundleQty,
-    bundlePrice
-  )
+  let packagePrice: number
+  switch (item.discountType) {
+    case 'none':
+      packagePrice = price
+      break
+    case 'yen':
+      packagePrice = Math.max(0, price - discountValue)
+      break
+    case 'percent':
+      packagePrice = price * (1 - Math.min(discountValue, 100) / 100)
+      break
+    case 'second_half':
+      // 2個買う場合の1個あたり平均：(price + price/2) / 2 = price × 0.75
+      packagePrice = price * 0.75
+      break
+    case 'bundle':
+      packagePrice =
+        bundleQty > 0 && bundlePrice > 0
+          ? bundlePrice / bundleQty  // まとめ買い1個あたり価格
+          : price
+      break
+    default:
+      packagePrice = price
+  }
 
-  if (base === 'per_piece') return effectiveTotal / quantity
-  return (effectiveTotal / quantity) * 100 // per_100g
+  const taxIncluded = calcTaxIncluded(packagePrice, item.taxMode, item.taxRate)
+  return taxIncluded / capacity
 }
 
-// ── 割引入力 ─────────────────────────────────────────────────
+// ── 割引入力 ─────────────────────────────────────────────────────
 function DiscountRow({
   item,
   onChange,
@@ -66,7 +88,7 @@ function DiscountRow({
   ]
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2.5">
       <p className="text-[10px] text-[#9b8e7c] font-bold tracking-wider uppercase">
         割引
       </p>
@@ -95,13 +117,10 @@ function DiscountRow({
             min="0"
             value={item.discountValue === '' ? '' : item.discountValue}
             onChange={(e) =>
-              onChange({
-                ...item,
-                discountValue: e.target.value === '' ? '' : Number(e.target.value),
-              })
+              onChange({ ...item, discountValue: e.target.value === '' ? '' : Number(e.target.value) })
             }
             placeholder="0"
-            className="w-28 px-3 py-2.5 bg-[#faf8f5] border border-[#ede8e0] rounded-xl text-xl text-[#3d3228] text-right focus:outline-none focus:border-primary"
+            className="w-32 px-3 py-2.5 bg-[#faf8f5] border border-[#ede8e0] rounded-xl text-xl text-[#3d3228] text-right focus:outline-none focus:border-primary"
           />
           <span className="text-sm text-[#5c4f3a]">円引き</span>
         </div>
@@ -116,16 +135,17 @@ function DiscountRow({
             max="100"
             value={item.discountValue === '' ? '' : item.discountValue}
             onChange={(e) =>
-              onChange({
-                ...item,
-                discountValue: e.target.value === '' ? '' : Number(e.target.value),
-              })
+              onChange({ ...item, discountValue: e.target.value === '' ? '' : Number(e.target.value) })
             }
             placeholder="0"
-            className="w-28 px-3 py-2.5 bg-[#faf8f5] border border-[#ede8e0] rounded-xl text-xl text-[#3d3228] text-right focus:outline-none focus:border-primary"
+            className="w-32 px-3 py-2.5 bg-[#faf8f5] border border-[#ede8e0] rounded-xl text-xl text-[#3d3228] text-right focus:outline-none focus:border-primary"
           />
           <span className="text-sm text-[#5c4f3a]">% OFF</span>
         </div>
+      )}
+
+      {item.discountType === 'second_half' && (
+        <p className="text-xs text-[#9b8e7c]">2個買う場合の1個あたり平均で比較</p>
       )}
 
       {item.discountType === 'bundle' && (
@@ -136,10 +156,7 @@ function DiscountRow({
             min="2"
             value={item.bundleQuantity === '' ? '' : item.bundleQuantity}
             onChange={(e) =>
-              onChange({
-                ...item,
-                bundleQuantity: e.target.value === '' ? '' : Number(e.target.value),
-              })
+              onChange({ ...item, bundleQuantity: e.target.value === '' ? '' : Number(e.target.value) })
             }
             placeholder="3"
             className="w-20 px-3 py-2.5 bg-[#faf8f5] border border-[#ede8e0] rounded-xl text-xl text-[#3d3228] text-right focus:outline-none focus:border-primary"
@@ -151,10 +168,7 @@ function DiscountRow({
             min="0"
             value={item.bundlePrice === '' ? '' : item.bundlePrice}
             onChange={(e) =>
-              onChange({
-                ...item,
-                bundlePrice: e.target.value === '' ? '' : Number(e.target.value),
-              })
+              onChange({ ...item, bundlePrice: e.target.value === '' ? '' : Number(e.target.value) })
             }
             placeholder="1000"
             className="w-28 px-3 py-2.5 bg-[#faf8f5] border border-[#ede8e0] rounded-xl text-xl text-[#3d3228] text-right focus:outline-none focus:border-primary"
@@ -170,21 +184,19 @@ function DiscountRow({
 function ItemCard({
   label,
   item,
-  quantityLabel,
   onChange,
 }: {
   label: string
   item: Item
-  quantityLabel: string
   onChange: (v: Item) => void
 }) {
   return (
     <div className="bg-white rounded-2xl border border-[#ede8e0] p-4 space-y-4">
       <p className="text-base font-bold text-[#3d3228]">{label}</p>
 
+      {/* 価格 & 容量（2列） */}
       <div className="flex gap-3">
-        {/* 価格 */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <label className="text-[10px] text-[#9b8e7c] font-bold tracking-wider uppercase block mb-1">
             価格
           </label>
@@ -195,10 +207,7 @@ function ItemCard({
               min="0"
               value={item.price === '' ? '' : item.price}
               onChange={(e) =>
-                onChange({
-                  ...item,
-                  price: e.target.value === '' ? '' : Number(e.target.value),
-                })
+                onChange({ ...item, price: e.target.value === '' ? '' : Number(e.target.value) })
               }
               placeholder="0"
               className="flex-1 min-w-0 px-3 py-3 bg-[#faf8f5] border border-[#ede8e0] rounded-xl text-2xl text-[#3d3228] text-right focus:outline-none focus:border-primary"
@@ -207,25 +216,57 @@ function ItemCard({
           </div>
         </div>
 
-        {/* 数量 */}
-        <div className="w-28">
+        <div className="flex-1 min-w-0">
           <label className="text-[10px] text-[#9b8e7c] font-bold tracking-wider uppercase block mb-1">
-            {quantityLabel}
+            容量
           </label>
           <input
             type="number"
             inputMode="decimal"
             min="0"
-            value={item.quantity === '' ? '' : item.quantity}
+            value={item.capacity === '' ? '' : item.capacity}
             onChange={(e) =>
-              onChange({
-                ...item,
-                quantity: e.target.value === '' ? '' : Number(e.target.value),
-              })
+              onChange({ ...item, capacity: e.target.value === '' ? '' : Number(e.target.value) })
             }
             placeholder="0"
             className="w-full px-3 py-3 bg-[#faf8f5] border border-[#ede8e0] rounded-xl text-2xl text-[#3d3228] text-right focus:outline-none focus:border-primary"
           />
+        </div>
+      </div>
+
+      {/* 税 */}
+      <div>
+        <p className="text-[10px] text-[#9b8e7c] font-bold tracking-wider uppercase mb-1.5">消費税</p>
+        <div className="flex gap-1.5 flex-wrap">
+          {(['included', 'excluded'] as TaxMode[]).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => onChange({ ...item, taxMode: mode })}
+              className={`py-2 px-3 rounded-lg text-xs font-bold border transition-colors ${
+                item.taxMode === mode
+                  ? 'bg-primary text-white border-primary'
+                  : 'bg-[#faf8f5] text-[#5c4f3a] border-[#ede8e0]'
+              }`}
+            >
+              {mode === 'included' ? '税込' : '税抜'}
+            </button>
+          ))}
+          {item.taxMode === 'excluded' &&
+            ([8, 10] as TaxRate[]).map((rate) => (
+              <button
+                key={rate}
+                type="button"
+                onClick={() => onChange({ ...item, taxRate: rate })}
+                className={`py-2 px-3 rounded-lg text-xs font-bold border transition-colors ${
+                  item.taxRate === rate
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-[#faf8f5] text-[#5c4f3a] border-[#ede8e0]'
+                }`}
+              >
+                {rate}%
+              </button>
+            ))}
         </div>
       </div>
 
@@ -235,35 +276,27 @@ function ItemCard({
 }
 
 // ── 結果カード ──────────────────────────────────────────────────
-function CompareResult({
-  unitA,
-  unitB,
-  base,
-}: {
-  unitA: number
-  unitB: number
-  base: CompareBase
-}) {
-  const baseLabel = base === 'per_piece' ? '1つあたり' : '100gあたり'
-  const diff = Math.abs(unitA - unitB)
-  const cheaper = unitA < unitB ? 'A' : 'B'
-  const pctSaving = (diff / Math.max(unitA, unitB)) * 100
-  const winUnit = unitA < unitB ? unitA : unitB
-  const loseUnit = unitA < unitB ? unitB : unitA
+function CompareResult({ unitA, unitB }: { unitA: number; unitB: number }) {
+  const cheaper = unitA <= unitB ? 'A' : 'B'
+  const winUnit = Math.min(unitA, unitB)
+  const loseUnit = Math.max(unitA, unitB)
+  const diff = loseUnit - winUnit
+  const pct = loseUnit > 0 ? (diff / loseUnit) * 100 : 0
 
-  const fmt = (n: number) =>
-    n >= 10 ? Math.round(n).toLocaleString() : n.toFixed(1)
+  const fmt = (n: number) => {
+    if (n >= 100) return Math.round(n).toLocaleString()
+    if (n >= 10) return n.toFixed(1)
+    return n.toFixed(2)
+  }
 
   return (
     <div className="bg-white rounded-2xl border-2 border-primary p-5 space-y-3">
       <div className="text-center">
         <p className="text-4xl font-bold text-primary">{cheaper}がお得</p>
         <p className="text-lg text-[#5c4f3a] mt-1">
-          {baseLabel} <span className="font-bold text-[#3d3228]">{fmt(diff)}円</span>安い
+          1つあたり <span className="font-bold text-[#3d3228]">{fmt(diff)}円</span>安い
         </p>
-        <p className="text-sm text-[#9b8e7c] mt-0.5">
-          約{pctSaving.toFixed(0)}%お得
-        </p>
+        <p className="text-sm text-[#9b8e7c] mt-0.5">約{pct.toFixed(0)}%お得</p>
       </div>
 
       <div className="flex gap-3 pt-1">
@@ -279,17 +312,11 @@ function CompareResult({
                 : 'bg-[#faf8f5] border-[#ede8e0]'
             }`}
           >
-            <p className="text-[10px] text-[#9b8e7c] font-bold uppercase mb-0.5">
-              商品{label}
-            </p>
-            <p
-              className={`text-xl font-bold ${
-                unit === winUnit ? 'text-primary' : 'text-[#5c4f3a]'
-              }`}
-            >
+            <p className="text-[10px] text-[#9b8e7c] font-bold uppercase mb-0.5">商品{label}</p>
+            <p className={`text-xl font-bold ${unit === winUnit ? 'text-primary' : 'text-[#5c4f3a]'}`}>
               {fmt(unit)}円
             </p>
-            <p className="text-[10px] text-[#9b8e7c]">{baseLabel}</p>
+            <p className="text-[10px] text-[#9b8e7c]">1つあたり</p>
           </div>
         ))}
       </div>
@@ -297,95 +324,42 @@ function CompareResult({
   )
 }
 
-// ── メインコンポーネント ──────────────────────────────────────────
+// ── メイン ──────────────────────────────────────────────────────
 export default function UnitCompareCalculator() {
-  const [compareBase, setCompareBase] = useState<CompareBase>('per_piece')
   const [itemA, setItemA] = useState<Item>(defaultItem())
   const [itemB, setItemB] = useState<Item>(defaultItem())
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    try {
-      const saved = localStorage.getItem(LS_KEY)
-      if (saved === 'per_piece' || saved === 'per_100g') setCompareBase(saved)
-    } catch {
-      // ignore
-    }
   }, [])
-
-  const handleBaseChange = (base: CompareBase) => {
-    setCompareBase(base)
-    try {
-      localStorage.setItem(LS_KEY, base)
-    } catch {
-      // ignore
-    }
-  }
-
-  const unitA = calcUnitPrice(itemA, compareBase)
-  const unitB = calcUnitPrice(itemB, compareBase)
-  const canShow = unitA !== null && unitB !== null
-
-  const quantityLabel = compareBase === 'per_100g' ? '数量(g)' : '数量'
 
   if (!mounted) {
     return <div className="p-4 text-center text-[#9b8e7c] text-sm">読み込み中...</div>
   }
 
+  const unitA = getUnitPrice(itemA)
+  const unitB = getUnitPrice(itemB)
+  const canShow = unitA !== null && unitB !== null
+
   return (
     <div className="space-y-4 p-4">
-      {/* 比較モード切替 */}
-      <div className="flex gap-2">
-        {(
-          [
-            { base: 'per_piece', label: '1つあたり' },
-            { base: 'per_100g', label: '100gあたり' },
-          ] as { base: CompareBase; label: string }[]
-        ).map(({ base, label }) => (
-          <button
-            key={base}
-            type="button"
-            onClick={() => handleBaseChange(base)}
-            className={`flex-1 py-3 rounded-xl text-sm font-bold border transition-colors ${
-              compareBase === base
-                ? 'bg-primary text-white border-primary'
-                : 'bg-white text-[#5c4f3a] border-[#ede8e0]'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
       {/* 結果 */}
       {canShow ? (
-        <CompareResult unitA={unitA} unitB={unitB} base={compareBase} />
+        <CompareResult unitA={unitA} unitB={unitB} />
       ) : (
         <div className="bg-white rounded-2xl border border-[#ede8e0] p-5 text-center">
-          <p className="text-sm text-[#9b8e7c]">価格と数量を入力してください</p>
+          <p className="text-sm text-[#9b8e7c]">価格と容量を入力してください</p>
         </div>
       )}
 
       {/* 商品入力 */}
-      <ItemCard
-        label="商品 A"
-        item={itemA}
-        quantityLabel={quantityLabel}
-        onChange={setItemA}
-      />
-      <ItemCard
-        label="商品 B"
-        item={itemB}
-        quantityLabel={quantityLabel}
-        onChange={setItemB}
-      />
+      <ItemCard label="商品 A" item={itemA} onChange={setItemA} />
+      <ItemCard label="商品 B" item={itemB} onChange={setItemB} />
 
-      {compareBase === 'per_100g' && (
-        <p className="text-xs text-[#9b8e7c] text-center px-2">
-          数量(g)欄に内容量をグラムで入力してください（例：400g入りなら 400）
-        </p>
-      )}
+      <p className="text-xs text-[#9b8e7c] text-center px-2 pb-2">
+        容量欄：個数・グラム・枚数など比較したい数字を入力（例：6本入り→6、400g→400）
+      </p>
     </div>
   )
 }
