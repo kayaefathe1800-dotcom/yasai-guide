@@ -173,7 +173,7 @@ export default function CartTotalCalculator() {
                 })
               }
               placeholder="0"
-              className="flex-1 px-3 py-3 bg-[#faf8f5] border border-[#ede8e0] rounded-xl text-2xl text-[#3d3228] text-right focus:outline-none focus:border-primary"
+              className="flex-1 min-w-0 px-3 py-3 bg-[#faf8f5] border border-[#ede8e0] rounded-xl text-2xl text-[#3d3228] text-right focus:outline-none focus:border-primary"
             />
             <span className="text-sm text-[#5c4f3a]">円</span>
           </div>
@@ -344,7 +344,7 @@ export default function CartTotalCalculator() {
                 })
               }
               placeholder="0"
-              className="flex-1 px-3 py-3 bg-[#faf8f5] border border-[#ede8e0] rounded-xl text-2xl text-[#3d3228] text-right focus:outline-none focus:border-primary"
+              className="flex-1 min-w-0 px-3 py-3 bg-[#faf8f5] border border-[#ede8e0] rounded-xl text-2xl text-[#3d3228] text-right focus:outline-none focus:border-primary"
             />
             <span className="text-sm text-[#5c4f3a]">円</span>
           </div>
